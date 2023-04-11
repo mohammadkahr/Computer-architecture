@@ -27,7 +27,7 @@
 					[
 						0
 					],
-					"name" : "untitled",
+					"name" : "Assembler",
 					"targetIndexes" : 
 					[
 						0
@@ -38,9 +38,9 @@
 			[
 				{
 					"directoryIndex" : 0,
-					"id" : "untitled::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-untitled-Debug-1a659c22660c4cf227b9.json",
-					"name" : "untitled",
+					"id" : "Assembler::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Assembler-Debug-9eaf30a6b7e8acb56b95.json",
+					"name" : "Assembler",
 					"projectIndex" : 0
 				}
 			]

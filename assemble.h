@@ -12,7 +12,7 @@
  * which, after finding the length, will become an array of symbols */
 struct symbolTable{
     int value;
-    char *symbol;
+    char *symbol; // lable
 };
 /* every time an instruction is read, it will be tokenized and each   *
  * token will reside in one element of this structure               */
