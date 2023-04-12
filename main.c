@@ -5,8 +5,8 @@
 #include <mqoai.h>
 #include <stdbool.h>
 
-
 #define TABLE_SIZE 1000
+
 // methods:
 int findSymTabLen(FILE *inputFile);
 int fillSymTab(struct symbolTable *symT,FILE *inputFile);
@@ -66,8 +66,7 @@ int main(int argc, char **argv) {
 
 
     symTabLen = findSymTabLen(assp);
-    printf("%d",symTabLen);
-
+//    printf("%d",symTabLen);
     pSymTab = (struct symbolTable *) malloc(symTabLen * sizeof(struct symbolTable));
     // malloc returns a pointer to the beginning of the allocated block of memory.
     for (int k = 0; k < symTabLen; k++) {
@@ -76,8 +75,11 @@ int main(int argc, char **argv) {
     //check duplicated labels
     //duplicatedLabel2(symbolTable, symbolTabLength);
     noInsts = fillSymTab(pSymTab,assp);
-    printf("%d : " , noInsts);
+//    printf("%d : " , noInsts);
 
+
+
+//here
 
 
 
@@ -86,7 +88,7 @@ int main(int argc, char **argv) {
     fclose(assp);
     fclose(machp);
 
-    printf("sffgh");
+//    printf("sffgh");
     return 0;
 }
 int findSymTabLen(FILE *inputFile) {
@@ -165,6 +167,9 @@ void int2hex16(char *lower,int a) {
         lower[0] = '0';
     }
 }
+
+//add by myself );
+
 int findSymbolTableLength(FILE *file) {
     int count = 0;
     char *line = (char *) malloc(72);
