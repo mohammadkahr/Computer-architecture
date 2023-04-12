@@ -4,44 +4,36 @@
 #include <stdlib.h>
 #include <mqoai.h>
 #include <stdbool.h>
-
+//defines:
 #define TABLE_SIZE 1000
 #define RTYPE 0
 #define ITYPE 1
 #define JTYPE 2
-
 #define RTYPE 0
 #define ITYPE 1
 #define JTYPE 2
 // methods:
-
-int fillSymTab(struct symbolTable *symT,FILE *inputFile);
-int hex2int( char* hex);
-void int2hex16(char *lower,int a);
-int findSymbolTableLength(FILE *file);
-void duplicatedLabel(struct symbolTable *symbolTable, int symbolTabLength);
-void duplicatedLabel2(struct symbolTable *symbolTable, int symbolTabLength);
 int findOpCode(char *token2, char *instructions[]);
-void result(int op, struct instruction *currentInstruction, struct symbolTable *symbolTable,
-            char hex_table[16], char lower[5], char *token2, int symbolTabLength, int programCounter, int line);
+void change(int op, struct instruction *currentInstruction, struct symbolTable *symbolTable,
+            const char hexTable[16], char lower[5], char *token2, int symbolTabLength,
+            int programCounter, int line);
 
 int main(int argc, char **argv){
     // Written by Mohammad._.hr
-    // https://t.me/Mohammadk_hr
-    // 4003623039
+    // https://t.me/Mohammadk_hr or harandi.mohamma@gmail.com
 
     //vars:
     FILE *assp, *machp, *fopen();
     struct symbolTable *pSymTab;
     int symTabLen;
-    int i=0, j=0, found, noInsts, programCounter = 0, instCnt = 0;
+    int noInsts, programCounter = 0, instCnt = 0;
     struct instruction *currInst;
     size_t lineSize;
     char *line;
     char *token;
     char *instructions[] = {"add", "sub", "slt", "or", "nand",
-                            "addi", "slti", "ori", "lui", "lw", "sw", "beq", "jalr",
-                            "j", "halt"};
+                            "addi", "slti", "ori", "lui", "lw", "sw"
+                            , "beq", "jalr","j", "halt"};
     char hexTable[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
                          '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     char lower[5];
@@ -65,25 +57,20 @@ int main(int argc, char **argv){
     }
 
     /*************************************************
-    * ********************************************* *
-    * ********************************************* *
     here, you can place your code for the assembler
-    * ********************************************* *
-    * ********************************************* *
     *************************************************/
-
 
     symTabLen = findSymTabLen(assp);
     pSymTab = (struct symbolTable *) malloc(symTabLen * sizeof(struct symbolTable));
-    // malloc returns a pointer to the beginning of the allocated block of memory.
     for (int k = 0; k < symTabLen; k++) {
         pSymTab[k].symbol = (char *) malloc(7);
+        // 6 + 1 / one for 0 in the last of chars
     }
     noInsts = fillSymTab(pSymTab,assp);
-    //here -> day 2 :
+    // why we need noInsts?
     char *line2 = (char *) malloc(72);
     int lineCounterInWhile = 0 ;
-    while (fgets(line2, 600, assp) != NULL) {
+    while (fgets(line2, 1000, assp) != NULL) {
         programCounter++;
         //lines without label
         if (line2[0] == ' ' || line2[0] == '\t') {
@@ -96,13 +83,13 @@ int main(int argc, char **argv){
             //    delim -> A string that contains one or more delimiter characters.
             int op = findOpCode(token, instructions);
             if (op != -1) {
-                // do the result and write in the file
-
-                result(op, currInst, pSymTab,
+                // do the change and write in the file
+                change(op, currInst, pSymTab,
                        hexTable, lower, token, symTabLen,
-                       programCounter , lineCounterInWhile);
-                printf("%d\n", pSymTab->value);
-                fprintf(machp, "%d\n", currInst->intInst);
+                       programCounter, lineCounterInWhile);
+                //printf("%d\n", pSymTab->value);
+                fprintf(machp, "%zu\n", currInst->intInst);
+                //We should use “%zu” to print the variables of size_t length.
             }
             else {
                 printf("Invalid Opcode, LINE ERROR : ");
@@ -114,20 +101,21 @@ int main(int argc, char **argv){
         else {
             Boolean isInst = FALSE;
             token = strtok(line2, "\t ");
+            // its just help to code be ok :)
             token = strtok(NULL, "\t\n ");
             for (int op = 0; op < 15; op++) {
                 if (strcmp(instructions[op], token) == 0) {
                     isInst = TRUE;
-                    // do the result and write in the file
+                    // do the change and write in the file
 
-//                    result(op, currentInstruction, symbolTable, hex_table, lower, token, symbolTabLength,
+//                    change(op, currentInstruction, symbolTable, hex_table, lower, token, symbolTabLength,
 //                           programCounter);
 //                    printf("%d\n", currentInstruction->intValueInstruction);
 //                    fprintf(machp, "%d\n", currentInstruction->intValueInstruction);
-                    result(op, currInst, pSymTab,
+                    change(op, currInst, pSymTab,
                            hexTable, lower, token, symTabLen,
                            programCounter , lineCounterInWhile);
-                    printf("%d\n", pSymTab->value);
+                    //printf("%d\n", pSymTab->value);
                     fprintf(machp, "%d\n", currInst->intInst);
                 }
             }
@@ -152,7 +140,7 @@ int main(int argc, char **argv){
                         currInst->imm = atoi(token);
                     }
                     currInst->intInst = currInst->imm;
-                    printf("%d\n", currInst->intInst);
+                    //printf("%d\n", currInst->intInst);
                     fprintf(machp, "%d\n", currInst->intInst);
 
                 } else {
@@ -161,33 +149,47 @@ int main(int argc, char **argv){
                     exit(1);
                 }
             }
-            lineCounterInWhile++;
         }
+        lineCounterInWhile++;
     }
-
     fclose(assp);
     fclose(machp);
-
-    printf("done!");
+    printf("The received file lines : ");
+    printf("%d ",lineCounterInWhile);
+    printf("\ndone!");
     return 0;
 }
 
 //methods:
+/*//int findSymTabLen(FILE *inputFile) {
+//    int count = 0;
+//    int lineSize = 72;
+//    char *line;
+//    line = (char *) malloc(72);
+//    while (fgets(line, lineSize, inputFile) != NULL) {
+//        if ((line[0] == ' ') || (line[0] == '\t'));
+//        else
+//            count++;
+//    }
+//    rewind(inputFile);
+//    free(line);
+//    return count;
+//}*/
 int findSymTabLen(FILE *inputFile) {
     int count = 0;
-    int lineSize = 72;
-    char *line;
-    line = (char *) malloc(72);
-    while (fgets(line, lineSize, inputFile) != NULL) {
-        if ((line[0] == ' ') || (line[0] == '\t'));
-        else
+    char line[BUFSIZ];
+    while (fgets(line, sizeof(line), inputFile) != NULL) {
+        if (line[0] != ' ' && line[0] != '\t') {
             count++;
+        }
     }
     rewind(inputFile);
-    free(line);
     return count;
+    // This code was written by chatgpt
+
 }
 int fillSymTab(struct symbolTable *symT,FILE *inputFile) {
+    // this method can find the duplicated error too
     int lineNo = 0;
     int lineSize = 72;
     char *line;
@@ -228,90 +230,32 @@ int hex2int( char* hex) {
     }
     return (result);
 }
-void int2hex16(char *lower,int a) {
-    sprintf(lower, "%X", a);
-    if (a < 0x10) {
-        lower[4] = '\0';
-        lower[3] = lower[0];
-        lower[2] = '0';
-        lower[1] = '0';
-        lower[0] = '0';
-    } else if (a < 0x100) {
-        lower[4] = '\0';
-        lower[3] = lower[1];
-        lower[2] = lower[0];
-        lower[1] = '0';
-        lower[0] = '0';
-    } else if (a < 0x1000) {
-        lower[4] = '\0';
-        lower[3] = lower[2];
-        lower[2] = lower[1];
-        lower[1] = lower[0];
-        lower[0] = '0';
-    }
+void int2hex16(char* str, int num) {
+    snprintf(str, 5, "%04X", (signed int)num);
+    // This code was written by chatgpt
 }
-
-//add by myself ->  );
-int findSymbolTableLength(FILE *file) {
-    int count = 0;
-    char *line = (char *) malloc(72);
-    while (fgets(line, 600, file) != NULL) {
-        if (line[0] != ' ' && line[0] != '\t')
-            count++;
-    }
-    free(line);
-    rewind(file); // add by myself
-    return count;
-//    rewind(file);
-}
-void duplicatedLabel(struct symbolTable *symbolTable, int symbolTabLength) {
-    //this method checks for duplicated labels in a symbol table
-    Boolean duplicated = FALSE;
-    for (int i = 0; i < symbolTabLength; ++i) {
-        for (int j = i + 1; j < symbolTabLength; ++j) {
-            if (strcmp(symbolTable[i].symbol, symbolTable[j].symbol) == 0) {
-                duplicated = TRUE;
-                break;
-            }
-        }
-    }
-    if (duplicated) {
-        puts("ERROR! exit(1) : Duplicated Label\n");
-        exit(1);
-    }
-}
-int hashFunction(char *symbol) {
-    int hash = 0 ;
-    for (int i = 0; symbol[i] != '\0'; ++i) {
-        hash = (hash * 31 + symbol[i]) % TABLE_SIZE;
-    }
-    return hash;
-}
-void duplicatedLabel2(struct symbolTable *symbolTable, int symbolTabLength) {
-    // Create a hash table to store symbols
-
-    bool table[TABLE_SIZE] = {false};
-    bool duplicated = false;
-
-    for (int i = 0; i < symbolTabLength; ++i) {
-        int hash = hashFunction(symbolTable[i].symbol);
-
-        // Check if the symbol is already in the hash table
-        if (table[hash]) {
-            duplicated = true;
-            break;
-        }
-
-        // Add the symbol to the hash table
-        table[hash] = true;
-    }
-
-    // Print an error message if duplicates were found
-    if (duplicated) {
-        puts("ERROR! exit(1) : Duplicated Label\n");
-        exit(1);
-    }
-}
+/*/void int2hex16(char *lower,int a) {
+//    sprintf(lower, "%X", a);
+//    if (a < 0x10) {
+//        lower[4] = '\0';
+//        lower[3] = lower[0];
+//        lower[2] = '0';
+//        lower[1] = '0';
+//        lower[0] = '0';
+//    } else if (a < 0x100) {
+//        lower[4] = '\0';
+//        lower[3] = lower[1];
+//        lower[2] = lower[0];
+//        lower[1] = '0';
+//        lower[0] = '0';
+//    } else if (a < 0x1000) {
+//        lower[4] = '\0';
+//        lower[3] = lower[2];
+//        lower[2] = lower[1];
+//        lower[1] = lower[0];
+//        lower[0] = '0';
+//    }
+//}*/
 int findOpCode(char *token2, char *instructions[]) {
     int opcode = -1;
 //    strcmp() is a C library function that is used to compare two strings lexicographically.
@@ -321,7 +265,7 @@ int findOpCode(char *token2, char *instructions[]) {
 //    s1 -> The first string to be compared.
 //    s2 -> The second string to be compared.
 //
-//    The function returns an integer value that indicates the result of the comparison:
+//    The function returns an integer value that indicates the change of the comparison:
 //
 //    If s1 is less than s2, the function returns a negative integer.
 //    If s1 is greater than s2, the function returns a positive integer.
@@ -344,8 +288,8 @@ int findSymbol(int symbolTabLength, struct symbolTable *symbolTable, char *token
     }
     return count;
 }
-void result(int op, struct instruction *currentInstruction, struct symbolTable *symbolTable,
-            char hex_table[16], char lower[5], char *token2,
+void change(int op, struct instruction *currentInstruction, struct symbolTable *symbolTable,
+            const char hexTable[16], char lower[5], char *token2,
             int symbolTabLength, int programCounter, int line) {
     if (op >= 0 && op <= 4) {//R format instruction
         currentInstruction->instType = RTYPE;
@@ -359,10 +303,10 @@ void result(int op, struct instruction *currentInstruction, struct symbolTable *
         currentInstruction->rt = atoi(token2);
         currentInstruction->PC = currentInstruction->PC + 1;
         currentInstruction->inst[0] = '0';
-        currentInstruction->inst[1] = hex_table[op];
-        currentInstruction->inst[2] = hex_table[currentInstruction->rs];
-        currentInstruction->inst[3] = hex_table[currentInstruction->rt];
-        currentInstruction->inst[4] = hex_table[currentInstruction->rd];
+        currentInstruction->inst[1] = hexTable[op];
+        currentInstruction->inst[2] = hexTable[currentInstruction->rs];
+        currentInstruction->inst[3] = hexTable[currentInstruction->rt];
+        currentInstruction->inst[4] = hexTable[currentInstruction->rd];
         currentInstruction->inst[5] = '0';
         currentInstruction->inst[6] = '0';
         currentInstruction->inst[7] = '0';
@@ -414,7 +358,7 @@ void result(int op, struct instruction *currentInstruction, struct symbolTable *
                     currentInstruction->imm = num;
                 }
                 else {
-                    puts("invalid Offset, LINE ERROR : ");
+                    printf("invalid Offset, LINE ERROR : ");
                     printf("%d ", line + 1);
                     exit(1);//invalid offset
                 }
@@ -451,9 +395,9 @@ void result(int op, struct instruction *currentInstruction, struct symbolTable *
         }
         currentInstruction->PC = currentInstruction->PC + 1;
         currentInstruction->inst[0] = '0';
-        currentInstruction->inst[1] = hex_table[op];
-        currentInstruction->inst[2] = hex_table[currentInstruction->rs];
-        currentInstruction->inst[3] = hex_table[currentInstruction->rt];
+        currentInstruction->inst[1] = hexTable[op];
+        currentInstruction->inst[2] = hexTable[currentInstruction->rs];
+        currentInstruction->inst[3] = hexTable[currentInstruction->rt];
         int2hex16(lower, currentInstruction->imm);
         currentInstruction->inst[4] = lower[0];
         currentInstruction->inst[5] = lower[1];
@@ -479,7 +423,7 @@ void result(int op, struct instruction *currentInstruction, struct symbolTable *
                 currentInstruction->imm = symbolTable[count].value;
             }
             else if (isalpha((token2[0]))) {
-                puts("Undefined Label, LINE ERROR : ");
+                printf("Undefined Label, LINE ERROR : ");
                 printf("%d ", line + 1);
                 exit(1);
             }
@@ -497,7 +441,7 @@ void result(int op, struct instruction *currentInstruction, struct symbolTable *
         }
         currentInstruction->PC = currentInstruction->PC + 1;
         currentInstruction->inst[0] = '0';
-        currentInstruction->inst[1] = hex_table[op];
+        currentInstruction->inst[1] = hexTable[op];
         currentInstruction->inst[2] = '0';
         currentInstruction->inst[3] = '0';
         int2hex16(lower, currentInstruction->imm);
@@ -511,3 +455,66 @@ void result(int op, struct instruction *currentInstruction, struct symbolTable *
     }
 
 }
+// useless
+int findSymbolTableLength(FILE *file) {
+    int count = 0;
+    char *line = (char *) malloc(72);
+    while (fgets(line, 600, file) != NULL) {
+        if (line[0] != ' ' && line[0] != '\t')
+            count++;
+    }
+    free(line);
+    rewind(file); // add by myself
+    return count;
+//    rewind(file);
+}
+void duplicatedLabel(struct symbolTable *symbolTable, int symbolTabLength) {
+    //this method checks for duplicated labels in a symbol table
+    Boolean duplicated = FALSE;
+    for (int i = 0; i < symbolTabLength; ++i) {
+        for (int j = i + 1; j < symbolTabLength; ++j) {
+            if (strcmp(symbolTable[i].symbol, symbolTable[j].symbol) == 0) {
+                duplicated = TRUE;
+                break;
+            }
+        }
+    }
+    if (duplicated) {
+        puts("ERROR! exit(1) : Duplicated Label\n");
+        exit(1);
+    }
+}
+int hashFunction(const char *symbol) {
+    int hash = 0 ;
+    for (int i = 0; symbol[i] != '\0'; ++i) {
+        hash = (hash * 31 + symbol[i]) % TABLE_SIZE;
+    }
+    return hash;
+}
+void duplicatedLabel2(struct symbolTable *symbolTable, int symbolTabLength) {
+    // Create a hash table to store symbols
+
+    bool table[TABLE_SIZE] = {false};
+    bool duplicated = false;
+
+    for (int i = 0; i < symbolTabLength; ++i) {
+        int hash = hashFunction(symbolTable[i].symbol);
+
+        // Check if the symbol is already in the hash table
+        if (table[hash]) {
+            duplicated = true;
+            break;
+        }
+
+        // Add the symbol to the hash table
+        table[hash] = true;
+    }
+
+    // Print an error message if duplicates were found
+    if (duplicated) {
+        puts("ERROR! exit(1) : Duplicated Label\n");
+        exit(1);
+    }
+}
+
+
