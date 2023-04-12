@@ -189,7 +189,7 @@ int findSymTabLen(FILE *inputFile) {
 
 }
 int fillSymTab(struct symbolTable *symT,FILE *inputFile) {
-    // this method can find the duplicated error too
+    // this method can find duplicated error too
     int lineNo = 0;
     int lineSize = 72;
     char *line;
@@ -375,7 +375,7 @@ void change(int op, struct instruction *currentInstruction, struct symbolTable *
                 currentInstruction->imm = symbolTable[count].value;
             }
             else if (isalpha((token2[0]))) {
-                puts("Undefined Label, LINE ERROR :");
+                printf("Undefined Label, LINE ERROR :");
                 printf("%d ", line + 1);
                 exit(1);
             }
@@ -388,7 +388,8 @@ void change(int op, struct instruction *currentInstruction, struct symbolTable *
                     currentInstruction->imm = num;
                 }
                 else {
-                    puts("ERROR! exit(1) : invalid Offset\n");
+                    printf("invalid Offset, LINE ERROR : ");
+                    printf("%d ", line + 1);
                     exit(1);//invalid offset
                 }
             }
@@ -516,5 +517,3 @@ void duplicatedLabel2(struct symbolTable *symbolTable, int symbolTabLength) {
         exit(1);
     }
 }
-
-
