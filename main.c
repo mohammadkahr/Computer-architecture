@@ -15,15 +15,18 @@ void int2hex16(char *lower,int a);
 int findSymbolTableLength(FILE *file);
 void duplicatedLabel(struct symbolTable *symbolTable, int symbolTabLength);
 void duplicatedLabel2(struct symbolTable *symbolTable, int symbolTabLength);
+int findOpCode(char *token2, char *instructions[]);
 
 int main(int argc, char **argv){
     // Written by Mohammad._.hr
     // https://t.me/Mohammadk_hr
     // 4003623039
+
+    //vars:
     FILE *assp, *machp, *fopen();
     struct symbolTable *pSymTab;
     int symTabLen;
-    int i, j, found, noInsts;
+    int i=0, j=0, found, noInsts, programCounter = 0, instCnt = 0;
     struct instruction *currInst;
     size_t lineSize;
     char *line;
@@ -31,12 +34,9 @@ int main(int argc, char **argv){
     char *instructions[] = {"add", "sub", "slt", "or", "nand",
                             "addi", "slti", "ori", "lui", "lw", "sw", "beq", "jalr",
                             "j", "halt"};
-    int instCnt = 0;
     char hexTable[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
                          '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     char lower[5];
-    i = 0;
-    j = 0;
     line = (char *) malloc(72);
     currInst = (struct instruction *) malloc(sizeof(struct instruction));
     // malloc returns a pointer to the beginning of the allocated block of memory.
@@ -66,23 +66,49 @@ int main(int argc, char **argv){
 
 
     symTabLen = findSymTabLen(assp);
-//    printf("%d",symTabLen);
     pSymTab = (struct symbolTable *) malloc(symTabLen * sizeof(struct symbolTable));
     // malloc returns a pointer to the beginning of the allocated block of memory.
     for (int k = 0; k < symTabLen; k++) {
         pSymTab[k].symbol = (char *) malloc(7);
     }
-    //check duplicated labels
-    //duplicatedLabel2(symbolTable, symbolTabLength);
     noInsts = fillSymTab(pSymTab,assp);
-//    printf("%d : " , noInsts);
+    //here -> day 2 :
+    char *line2 = (char *) malloc(72);
+    int lineCounterInWhile = 0 ;
+    while (fgets(line2, 600, assp) != NULL) {
+        programCounter++;
+        //lines without label
+        if (line2[0] == ' ' || line2[0] == '\t') {
+            token = strtok(line2, "\t,\n ");
+            //    strtok() : is a C library function that is used to tokenize (split) a string
+            //    into smaller tokens or substrings based on a delimiter.
+            //    It is defined in the string.h header file.
+            //    The function takes two arguments:
+            //    str -> The string to be tokenized.
+            //    delim -> A string that contains one or more delimiter characters.
+            int op = findOpCode(token, instructions);
+            if (op != -1) {
+                // do the result and write in the file
+
+//                result(op, pSymTab, symTabLen, hexTable,
+//                       lower, token, symTabLen, programCounter);
+//                printf("%d\n", pSymTab->value);
+//                fprintf(machp, "%d\n", currentInstruction->intValueInstruction);
+            }
+            else {
+                puts("ERROR! exit(1) : Invalid Opcode");
+                printf("LINE ERROR : ");
+                printf("%d ", lineCounterInWhile + 1);
+                exit(1);
+            }
+        }
 
 
 
-//here
 
 
-
+        lineCounterInWhile++;
+    }
 
 
     fclose(assp);
@@ -171,6 +197,7 @@ void int2hex16(char *lower,int a) {
 }
 
 //add by myself ->  );
+
 int findSymbolTableLength(FILE *file) {
     int count = 0;
     char *line = (char *) malloc(72);
@@ -230,5 +257,28 @@ void duplicatedLabel2(struct symbolTable *symbolTable, int symbolTabLength) {
         puts("ERROR! exit(1) : Duplicated Label\n");
         exit(1);
     }
+}
+int findOpCode(char *token2, char *instructions[]) {
+    int opcode = -1;
+//    strcmp() is a C library function that is used to compare two strings lexicographically.
+//    It is defined in the string.h header file.
+//    The function takes two arguments:
+//
+//    s1 -> The first string to be compared.
+//    s2 -> The second string to be compared.
+//
+//    The function returns an integer value that indicates the result of the comparison:
+//
+//    If s1 is less than s2, the function returns a negative integer.
+//    If s1 is greater than s2, the function returns a positive integer.
+//    If s1 is equal to s2, the function returns zero.
+
+    for (int op = 0; op < 15; op++) {
+        if (strcmp(instructions[op], token2) == 0) {
+            opcode = op;
+            break;
+        }
+    }
+    return opcode;
 }
 
