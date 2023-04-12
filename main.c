@@ -8,7 +8,7 @@
 #define TABLE_SIZE 1000
 
 // methods:
-int findSymTabLen(FILE *inputFile);
+
 int fillSymTab(struct symbolTable *symT,FILE *inputFile);
 int hex2int( char* hex);
 void int2hex16(char *lower,int a);
@@ -16,7 +16,7 @@ int findSymbolTableLength(FILE *file);
 void duplicatedLabel(struct symbolTable *symbolTable, int symbolTabLength);
 void duplicatedLabel2(struct symbolTable *symbolTable, int symbolTabLength);
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv){
     // Written by Mohammad._.hr
     // https://t.me/Mohammadk_hr
     // 4003623039
@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
     fclose(assp);
     fclose(machp);
 
-//    printf("sffgh");
+    printf("done!");
     return 0;
 }
 int findSymTabLen(FILE *inputFile) {
@@ -118,7 +118,9 @@ int fillSymTab(struct symbolTable *symT,FILE *inputFile) {
             token = strtok(line, "\t, ");
             for (int j = 0; j < i; ++j) {
                 if (strcmp(token,symT[j].symbol)==0){
-                    puts("ERROR! exit(1) : Duplicated Label\n");
+                    puts("ERROR! exit(1) : Duplicated Label");
+                    printf("LINE ERROR : ");
+                    printf("%d ",lineNo+1);
                     exit(1);
                 }
             }
@@ -168,8 +170,7 @@ void int2hex16(char *lower,int a) {
     }
 }
 
-//add by myself );
-
+//add by myself ->  );
 int findSymbolTableLength(FILE *file) {
     int count = 0;
     char *line = (char *) malloc(72);

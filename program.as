@@ -1,7 +1,7 @@
 	lw	1,0,five
 	lw	2,1,2
-	add	1,1,2
-start	beq	0,1,done
+start	add	1,1,2
+	beq	0,1,done
 	j	start
 done	halt
 five	.fill 	5
