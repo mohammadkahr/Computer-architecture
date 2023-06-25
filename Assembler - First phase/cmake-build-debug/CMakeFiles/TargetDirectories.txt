@@ -1,0 +1,3 @@
+C:/Users/mohammad/Desktop/Computer-architecture/Assembler - First phase/cmake-build-debug/CMakeFiles/Assembler.dir
+C:/Users/mohammad/Desktop/Computer-architecture/Assembler - First phase/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/mohammad/Desktop/Computer-architecture/Assembler - First phase/cmake-build-debug/CMakeFiles/rebuild_cache.dir
